@@ -1,4 +1,20 @@
-<p>
-  items works!
-  {{items}}
-</p>
+<table class="table">
+  <thead>
+    <tr>
+      <td>Name</td>
+      <td>Price</td>
+      <td>Action</td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of items">
+      <td>{{item.name}}</td>
+      <td>${{item.price}}</td>
+      <td>
+        <button class="btn btn-primary">
+          Add to shopping cart
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
