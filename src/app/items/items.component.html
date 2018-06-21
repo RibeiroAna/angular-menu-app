@@ -1,3 +1,4 @@
+<button class="btn btn-primary">Login</button>
 <table class="table">
   <thead>
     <tr>
@@ -11,10 +12,31 @@
       <td>{{item.name}}</td>
       <td>${{item.price}}</td>
       <td>
-        <button class="btn btn-primary">
+        <button class="btn btn-secondary" (click)="addToCart()">
           Add to shopping cart
         </button>
       </td>
     </tr>
   </tbody>
 </table>
+
+<h2>Add a new Item</h2>
+<form class="form-inline" (submit)="addNewItem()">
+  <div class="col-auto">
+    <input type="text"
+      class="form-control"
+      placeholder="Name" 
+      [(ngModel)]="newItem.name"
+      name="name">
+  </div>
+  <div class="col-auto">
+    <input type="number" 
+      class="form-control" 
+      placeholder="Price"
+      [(ngModel)]="newItem.price"
+      name="price">
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-primary mb-2">Add new item</button>
+  </div>
+</form>
