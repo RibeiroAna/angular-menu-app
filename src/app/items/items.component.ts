@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { FormGroup, Validators, FormBuilder } from '@angular/forms';
+
 import { Item } from './item.interface';
 import { AuthService } from '../auth/auth.service';
+import { ItemsService } from './items.service';
 
 @Component({
   selector: 'app-items',
@@ -9,29 +12,44 @@ import { AuthService } from '../auth/auth.service';
 })
 export class ItemsComponent implements OnInit {
 
-  items: Item [] = [{
-    name: 'Pizza',
-    price: 3
-  },
-  {
-    name: 'Salad',
-    price: 2
-  }];
+  itemForm: FormGroup;
+  items: Item [];
+  itemSubmitted = false;
 
-  newItem = new Item();
+  constructor(public authService: AuthService, private itemService: ItemsService, private formBuilder: FormBuilder) {}
 
-  constructor(public authService: AuthService) {
-    this.authService.isAdmin();
-   }
-
-  ngOnInit() {}
+  ngOnInit() {
+    this.itemService.getItems().subscribe(items => this.items = items);
+    this.itemForm = this.formBuilder.group({
+      name: ['', Validators.required],
+      price: ['', [Validators.required, Validators.min(0)]]
+    });
+  }
 
   addToCart() {
-    window.alert('Added to shopping cart');
+    this.itemService.postToShoppingCart().subscribe(response => {
+    }, error => {
+        window.alert(error.error.message || error.error.text);
+        console.log(error);
+    });
+  }
+
+  get getItemForm() {
+    return this.itemForm.controls;
   }
 
   addNewItem() {
-    this.items.push(this.newItem);
+    this.itemSubmitted = true;
+
+    if (this.itemForm.invalid) {
+      console.log(this.itemForm);
+    } else {
+      this.itemService.postItems(this.itemForm.value).subscribe(response => {
+        window.location.reload();
+      }, error => {
+          window.alert(error.error.message);
+      });
+    }
   }
 
 }

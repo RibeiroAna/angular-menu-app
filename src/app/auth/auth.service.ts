@@ -9,8 +9,8 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 export class AuthService {
 
   auth0 = new auth0.WebAuth({
-    clientID: '59ISA7Thz9PK4Kn4VUAFAHW1MAv6BEG8',
-    domain: 'uea.eu.auth0.com',
+    clientID: '[YOUR_CLIENT_ID]',
+    domain: '[YOUR_DOMAIN]',
     responseType: 'token id_token',
     audience: 'http://localhost:3000',
     redirectUri: 'http://localhost:4200/login',
@@ -73,6 +73,10 @@ export class AuthService {
       const helper = new JwtHelperService();
       return helper.decodeToken(token);
     }
+  }
+
+  public getAccessToken(): String {
+    return  localStorage.getItem('access_token');
   }
 
   public logout(): void {
