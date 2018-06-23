@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Item } from '../item.interface';
+import { Item } from './item.interface';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-items',
@@ -19,11 +20,11 @@ export class ItemsComponent implements OnInit {
 
   newItem = new Item();
 
+  constructor(public authService: AuthService) {
+    this.authService.isAdmin();
+   }
 
-  constructor() { }
-
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   addToCart() {
     window.alert('Added to shopping cart');

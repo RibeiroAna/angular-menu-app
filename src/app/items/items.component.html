@@ -1,10 +1,9 @@
-<button class="btn btn-primary">Login</button>
 <table class="table">
   <thead>
     <tr>
       <td>Name</td>
       <td>Price</td>
-      <td>Action</td>
+      <td>Action (Login to perform action)</td>
     </tr>
   </thead>
   <tbody>
@@ -12,7 +11,7 @@
       <td>{{item.name}}</td>
       <td>${{item.price}}</td>
       <td>
-        <button class="btn btn-secondary" (click)="addToCart()">
+        <button class="btn btn-default" (click)="addToCart()" [disabled]="!authService.isAuthenticated()">
           Add to shopping cart
         </button>
       </td>
@@ -20,23 +19,25 @@
   </tbody>
 </table>
 
-<h2>Add a new Item</h2>
-<form class="form-inline" (submit)="addNewItem()">
-  <div class="col-auto">
-    <input type="text"
-      class="form-control"
-      placeholder="Name" 
-      [(ngModel)]="newItem.name"
-      name="name">
-  </div>
-  <div class="col-auto">
-    <input type="number" 
-      class="form-control" 
-      placeholder="Price"
-      [(ngModel)]="newItem.price"
-      name="price">
-  </div>
-  <div class="col-auto">
-    <button type="submit" class="btn btn-primary mb-2">Add new item</button>
-  </div>
-</form>
+<div *ngIf="authService.isAdmin()">
+  <h3 class="col-md-12">Add a new Item</h3>
+  <form class="form-inline" (submit)="addNewItem()">
+    <div class="col-auto">
+      <input type="text"
+        class="form-control"
+        placeholder="Name" 
+        [(ngModel)]="newItem.name"
+        name="name">
+    </div>
+    <div class="col-auto">
+      <input type="number" 
+        class="form-control" 
+        placeholder="Price"
+        [(ngModel)]="newItem.price"
+        name="price">
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-primary mb-2">Add new item</button>
+    </div>
+  </form>
+</div>
