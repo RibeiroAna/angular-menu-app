@@ -4,10 +4,10 @@
       Login
   </button>
   <span  *ngIf="authService.isAuthenticated()">
-    <span *ngIf="user">
+    <span>
       Logged in as:
-      <img [src]="user.picture" width="40">
-      {{user.name}}
+      <img [src]="this.authService.getProfile().picture" width="40">
+      {{this.authService.getProfile().name}}
     </span>
     <button class="btn btn-secondary" (click)="authService.logout()">Logout</button>
   </span>

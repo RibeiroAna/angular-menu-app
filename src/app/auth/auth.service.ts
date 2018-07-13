@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { filter } from 'rxjs/operators';
-import * as auth0 from 'auth0-js';
+import {Auth0UserProfile, AuthOptions, WebAuth} from 'auth0-js';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Injectable({
@@ -8,34 +7,38 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 })
 export class AuthService {
 
-  auth0 = new auth0.WebAuth({
-    clientID: '[YOUR_CLIENT_ID]',
-    domain: '[YOUR_DOMAIN]',
-    responseType: 'token id_token',
-    audience: 'http://localhost:3000',
-    redirectUri: 'http://localhost:4200/login',
-    scope: 'openid profile'
-  });
+  protected _auth0Client: WebAuth;
+  private _accessToken: string;
+  private _idToken: string;
+  private _properties: Auth0Options;
 
-  constructor() {}
+  constructor() {
+    this._properties = {
+      clientID: '59ISA7Thz9PK4Kn4VUAFAHW1MAv6BEG8',
+      domain: 'uea.eu.auth0.com',
+      responseType: 'token id_token',
+      audience: 'http://localhost:3000',
+      redirectUri: 'http://localhost:4200/login',
+      scope: 'openid profile'
+    };
+    this._auth0Client = new WebAuth({...this._properties});
+  }
 
   public login(): void {
-    this.auth0.authorize();
+    this._auth0Client.authorize();
   }
 
   public isAuthenticated(): boolean {
     // Check whether the current time is past the
     // Access Token's expiry time
-    const expiresAt = JSON.parse(localStorage.getItem('expires_at') || '{}');
-    return new Date().getTime() < expiresAt;
+    return this._accessToken != null;
   }
 
   public handleAuthentication(): void {
-    this.auth0.parseHash((err, authResult) => {
+    this._auth0Client.parseHash((err, authResult) => {
       if (authResult && authResult.accessToken && authResult.idToken) {
         window.location.hash = '';
         this._setSession(authResult);
-        window.location.reload();
       } else if (err) {
         console.log(err);
       }
@@ -43,20 +46,35 @@ export class AuthService {
   }
 
   private _setSession(authResult): void {
-    // Set the time that the Access Token will expire at
-    // console.log(authResult);
-    const expiresAt = JSON.stringify((authResult.expiresIn * 1000) + new Date().getTime());
-    localStorage.setItem('access_token', authResult.accessToken);
-    localStorage.setItem('id_token', authResult.idToken);
-    localStorage.setItem('expires_at', expiresAt);
+    this._accessToken = authResult.accessToken;
+    console.log(authResult.idToken);
+    this._idToken = authResult.idToken;
   }
+
+  public checkSession(): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+      this._auth0Client.checkSession(this._properties, async (error, authResult) => {
+        if (error && error.error !== 'login_required') {
+          // some other error
+          return reject(error);
+        } else if (error) {
+          // explicit authentication required
+          return resolve(false);
+        }
+
+        if (!this.isAuthenticated()) {
+          this._setSession(authResult);
+          return resolve(true);
+        }
+      });
+    });
+}
 
   public isAdmin(): boolean {
     // check if there is a property Admin in access token
-    const token = localStorage.getItem('access_token');
-    if (token) {
+    if (this._accessToken) {
       const helper = new JwtHelperService();
-      const decodedToken = helper.decodeToken(token);
+      const decodedToken = helper.decodeToken(this._accessToken);
       if (decodedToken['http://localhost:3000/roles'].indexOf('admin') > -1) {
         return true;
       } else {
@@ -68,21 +86,20 @@ export class AuthService {
   }
 
   public getProfile(): Object {
-    const token = localStorage.getItem('id_token');
-    if (token) {
+    console.log(this._idToken);
+    if (this._idToken) {
       const helper = new JwtHelperService();
-      return helper.decodeToken(token);
+      return helper.decodeToken(this._idToken);
     }
   }
 
   public getAccessToken(): String {
-    return  localStorage.getItem('access_token');
+    return this._accessToken;
   }
 
   public logout(): void {
-    // Remove tokens and expiry time from localStorage
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('id_token');
-    localStorage.removeItem('expires_at');
+    // Remove tokens 
+    delete this._accessToken;
+    delete this._idToken;
   }
 }

@@ -12,7 +12,6 @@ export class HeaderComponent implements OnInit {
   title = 'Food menu';
 
   constructor(public authService: AuthService) {
-    this.user = this.authService.getProfile();
   }
 
   ngOnInit() {
