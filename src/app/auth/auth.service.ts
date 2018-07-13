@@ -10,7 +10,7 @@ export class AuthService {
   protected _auth0Client: WebAuth;
   private _accessToken: string;
   private _idToken: string;
-  private _properties: Auth0Options;
+  private _properties: AuthOptions;
 
   constructor() {
     this._properties = {
@@ -98,7 +98,7 @@ export class AuthService {
   }
 
   public logout(): void {
-    // Remove tokens 
+    // Remove tokens
     delete this._accessToken;
     delete this._idToken;
   }
