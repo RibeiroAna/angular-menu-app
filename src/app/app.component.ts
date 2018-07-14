@@ -9,5 +9,6 @@ import { AuthService } from './auth/auth.service';
 export class AppComponent {
   constructor(public authService: AuthService) {
     this.authService.checkSession();
+    this.authService.handleAuthentication();
   }
 }
